@@ -4,11 +4,10 @@ const withAuth = require('../utils/auth');
 
 router.get('/', async (req, res) => {
   try {
-    // Get all projects and JOIN with user data
+    // Get all posts and JOIN with user data
     const postData = await Post.findAll({
-      include: [[User, Response]],
+      include: [User, Response],
     });
-
     // Serialize data so the template can read it
     const posts = postData.map((post) => post.get({ plain: true }));
 
@@ -22,25 +21,25 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/posts/:id', async (req, res) => {
+router.get('/post/:id', async (req, res) => {
   try {
     const postData = await Post.findByPk(req.params.id, {
       include: [
         {
           model: Response,
-          attributes: [User],
+          include: [User],
         },
         {
           model: User,
         },
       ],
-      order: [[Comment, 'date_created', 'desc']],
+      order: [[Response, 'date_created', 'desc']],
     });
 
-    const posts = postData.get({ plain: true });
+    const post = postData.get({ plain: true });
 
-    res.render('posts', {
-      ...posts,
+    res.render('post', {
+      ...post,
       logged_in: req.session.logged_in,
     });
   } catch (err) {
@@ -49,7 +48,7 @@ router.get('/posts/:id', async (req, res) => {
 });
 
 // Use withAuth middleware to prevent access to route
-router.get('/profile', withAuth, async (req, res) => {
+router.get('/profile', async (req, res) => {
   try {
     // Find the logged in user based on the session ID
     const userData = await User.findByPk(req.session.user_id, {

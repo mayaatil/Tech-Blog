@@ -1,15 +1,15 @@
 const router = require('express').Router();
-const userResponse = require('express/lib/response');
+const res = require('express/lib/response');
 const { Response } = require('../../models');
 
 router.post('/', async (req, res) => {
   try {
-    const addResponse = await Response.create({
+    const newResponse = await Response.create({
       ...req.body,
       user_id: req.session.user_id,
     });
 
-    res.status(200).json(addResponse);
+    res.status(200).json(newResponse);
   } catch (err) {
     res.status(400).json(err);
   }
