@@ -1,0 +1,45 @@
+<div class='text-center'>
+  <h2>{{title}}</h2>
+  <p>{{description}}</p>
+  <p>Posted by {{user.name}} on {{format_date date_created}}</p>
+
+
+<form class="form delete-response-form">
+{{each responses as |response|}}
+<div>{{user.name}} on {{format_date date_created}} said: {{response.title}}
+  <button type="submit" data-action="{{response.id}}" class="btn btn-primary">Delete</button>
+</div>
+{{/each}}
+</form>
+
+{{!-- edit --}}
+
+<form class="form update-response-form">
+  <div>Edit Post</div>
+   <input type="hidden" name="post_id" value="{{post.id}}"/> 
+
+<button class="btn btn-primary" type="submit">Edit</button>
+   
+</form>
+
+
+
+{{!-- comments if logged in --}}
+
+{{#if logged_in}}
+<form class="form new-post-form"
+<input type="hidden" name="post_id" value="{{post.id}}"/>
+<label for="response">Leave a comment:</label>
+<textarea class="form-input" id="response" name="response"></textarea>
+  <p>
+    <button type="submit" class='btn btn-primary'>Comment</button>
+  </p>
+</div>
+</form>
+
+
+{{!-- or else you need to log in to comment --}}
+
+{{else}}
+<div class="alert alert-danger">You must be logged in to comment</div>
+{{/if}}
