@@ -8,6 +8,7 @@ router.get('/', async (req, res) => {
     const postData = await Post.findAll({
       include: [User, Response],
     });
+
     // Serialize data so the template can read it
     const posts = postData.map((post) => post.get({ plain: true }));
 
@@ -22,18 +23,13 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/post/:id', async (req, res) => {
+  if (!req.session.logged_in) {
+    res.redirect('/login');
+    return;
+  }
   try {
     const postData = await Post.findByPk(req.params.id, {
-      include: [
-        {
-          model: Response,
-          include: [User],
-        },
-        {
-          model: User,
-        },
-      ],
-      order: [[Response, 'date_created', 'desc']],
+      include: [User, Response],
     });
 
     const post = postData.get({ plain: true });
@@ -47,8 +43,29 @@ router.get('/post/:id', async (req, res) => {
   }
 });
 
+router.get('/edit/post/:id', async (req, res) => {
+  if (!req.session.logged_in) {
+    res.redirect('/login');
+    return;
+  }
+  try {
+    const postData = await Post.findByPk(req.params.id, {
+      include: [User, Response],
+    });
+
+    const post = postData.get({ plain: true });
+
+    res.render('edit', {
+      ...post,
+      logged_in: req.session.logged_in,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 // Use withAuth middleware to prevent access to route
-router.get('/profile', async (req, res) => {
+router.get('/profile', withAuth, async (req, res) => {
   try {
     // Find the logged in user based on the session ID
     const userData = await User.findByPk(req.session.user_id, {
